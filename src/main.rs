@@ -1,6 +1,6 @@
 fn main() {
-    let string = String::from("127.0.0.1:8080");
-    let string_slice = &string[10..];
+    let string = String::from("🍔🍟🍺🍺");
+    let string_slice = &string[..8];
     let string_borrow: &str = &string;
     let string_literal = "1234";
 
