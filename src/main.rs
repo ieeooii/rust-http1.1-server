@@ -1,4 +1,4 @@
-use http::Method;
+// use http::Method;
 use server::Server;
 
 mod http;

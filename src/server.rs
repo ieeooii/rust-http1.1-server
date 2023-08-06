@@ -5,8 +5,6 @@ pub struct Server {
     addr: String,
 }
 
-fn arr(a: &[u8]) {}
-
 impl Server {
     pub fn new(addr: String) -> Self {
         Self { addr }
@@ -20,7 +18,12 @@ impl Server {
             match listener.accept() {
                 Ok((mut stream, _)) => {
                     let mut buffer = [1, 2, 3, 4];
-                    stream.read(&mut buffer);
+                    match stream.read(&mut buffer) {
+                        Ok(_) => {
+                            println!("Received a request: {}", String::from_utf8_lossy(&buffer))
+                        }
+                        Err(e) => println!("Failed to read from connection: {}", e),
+                    }
                 }
                 Err(e) => println!("Failed to establish a connection: {}", e),
             }
