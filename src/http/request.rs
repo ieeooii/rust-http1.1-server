@@ -32,7 +32,7 @@ impl TryFrom<&[u8]> for Request {
         let (protocol, _) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
 
         if protocol != "HTTP/1.1" {
-            return Err(_, ParseError::Invalidprotocol);
+            return Err(ParseError::Invalidprotocol);
         }
 
         unimplemented!()
