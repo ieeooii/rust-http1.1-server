@@ -1,4 +1,4 @@
-use super::method::Method;
+use super::method::{Method, MethodError};
 use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
@@ -22,18 +22,15 @@ impl TryFrom<&[u8]> for Request {
     fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
         let request: &str = str::from_utf8(buf)?;
 
-        // match get_next_word(request) {
-        //     Some((method, request)) => {}
-        //     None => return Err(ParseError::InvalidRequest),
-        // }
-
         let (method, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
         let (path, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
         let (protocol, _) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
 
         if protocol != "HTTP/1.1" {
-            return Err(ParseError::Invalidprotocol);
+            return Err(ParseError::InvalidProtocol);
         }
+
+        let method: Method = method.parse()?;
 
         unimplemented!()
     }
@@ -52,8 +49,25 @@ fn get_next_word(request: &str) -> Option<(&str, &str)> {
 pub enum ParseError {
     InvalidRequest,
     InvalidEncoding,
-    Invalidprotocol,
+    InvalidProtocol,
     InvalidMethod,
+}
+
+impl ParseError {
+    fn message(&self) -> &str {
+        match self {
+            Self::InvalidRequest => "Invalid Request",
+            Self::InvalidEncoding => "Invalid Encoding",
+            Self::InvalidProtocol => "Invalid Protocol",
+            Self::InvalidMethod => "Invalid Method",
+        }
+    }
+}
+
+impl From<MethodError> for ParseError {
+    fn from(_: MethodError) -> Self {
+        Self::InvalidMethod
+    }
 }
 
 impl From<Utf8Error> for ParseError {
@@ -64,24 +78,13 @@ impl From<Utf8Error> for ParseError {
 
 impl Display for ParseError {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}", self.message());
+        write!(f, "{}", self.message())
     }
 }
 
 impl Debug for ParseError {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}", self.message());
-    }
-}
-
-impl ParseError {
-    fn message(&self) -> &str {
-        match self {
-            Self::InvalidRequest => "Invalid Request",
-            Self::InvalidEncoding => "Invalid Encoding",
-            Self::Invalidprotocol => "nvalid Protocol",
-            Self::InvalidMethod => "Invalid Method",
-        }
+        write!(f, "{}", self.message())
     }
 }
 
