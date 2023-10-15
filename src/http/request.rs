@@ -4,9 +4,9 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::str::{self, Utf8Error};
 
-pub struct Request {
-    path: &str,
-    query_string: Option<&str>,
+pub struct Request<'buf> {
+    path: &'buf str,
+    query_string: Option<&'buf str>,
     method: Method,
 }
 /*
@@ -15,11 +15,11 @@ HEADERS \r\n
 BODY
 */
 
-impl TryFrom<&[u8]> for Request {
+impl<'buf> TryFrom<&[u8]> for Request<'buf> {
     type Error = ParseError;
 
     // GET /search?name=abc&sort=1 HTTP/1.1\r\n...Headers...
-    fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
+    fn try_from(buf: &[u8]) -> Result<Request<'buf>, Self::Error> {
         let request: &str = str::from_utf8(buf)?;
 
         let (method, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
@@ -46,7 +46,7 @@ impl TryFrom<&[u8]> for Request {
     }
 }
 
-fn get_next_word(request: &str) -> Option<(&str, &str)> {
+fn get_next_word<'a>(request: &'a str) -> Option<(&'a str, &'a str)> {
     for (i, c) in request.chars().enumerate() {
         if c == ' ' || c == '\r' {
             return Some((&request[..i], &request[i + 1..]));
