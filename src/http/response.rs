@@ -1,8 +1,5 @@
 use super::StatusCode;
-use std::{
-    io::{Result as IoResult, Write},
-    net::TcpStream,
-};
+use std::io::{Result as IoResult, Write};
 
 #[derive(Debug)]
 pub struct Response {
@@ -14,7 +11,7 @@ impl Response {
     pub fn new(status_code: StatusCode, body: Option<String>) -> Self {
         Response { status_code, body }
     }
-    pub fn send(&self, stream: &mut TcpStream) -> IoResult<()> {
+    pub fn send(&self, stream: &mut dyn Write) -> IoResult<()> {
         let body = match &self.body {
             Some(b) => b,
             None => "",
