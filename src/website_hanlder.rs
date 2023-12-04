@@ -11,19 +11,18 @@ impl WebsiteHanlder {
         Self { public_path }
     }
     fn read_file(&self, file_path: &str) -> Option<String> {
-        let path = format!("{}/../{}", self.public_path, file_path);
-        match fs::canonicalize(path) {
+        let url = format!("{}/{}", self.public_path, file_path);
+        match fs::canonicalize(url) {
             Ok(path) => {
-                if path.starts_with(&self.publick_path) {
+                if path.starts_with(&self.public_path) {
                     fs::read_to_string(path).ok()
                 } else {
-                    println!("Directory Traversal Attach Attemted: {}", file_path)
+                    println!("Directory Traversal Attach Attemted: {}", file_path);
                     None
                 }
             }
             Err(_) => None,
         }
-        fs::read_to_string(path).ok()
     }
 }
 
